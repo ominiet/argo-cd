@@ -305,17 +305,10 @@ func (m *appStateManager) GetRepoObjs(ctx context.Context, app *v1alpha1.Applica
 			revisionsMayHaveChanges = true
 		}
 
-		repos := permittedHelmRepos
-		helmRepoCreds := permittedHelmCredentials
-		// If the source is OCI, there is a potential for an OCI image to be a Helm chart and that said chart in
-		// turn would have OCI dependencies. To ensure that those dependencies can be resolved, add them to the repos
-		// list.
-		if source.IsOCI() {
-			repos = slices.Clone(permittedHelmRepos)
-			helmRepoCreds = slices.Clone(permittedHelmCredentials)
-			repos = append(repos, permittedOCIRepos...)
-			helmRepoCreds = append(helmRepoCreds, permittedOCICredentials...)
-		}
+		repos := slices.Clone(permittedHelmRepos)
+		helmRepoCreds := slices.Clone(permittedHelmCredentials)
+		repos = append(repos, permittedOCIRepos...)
+		helmRepoCreds = append(helmRepoCreds, permittedOCICredentials...)
 
 		log.Debugf("Generating Manifest for source %s revision %s", source, revision)
 		manifestInfo, err := repoClient.GenerateManifest(ctx, &apiclient.ManifestRequest{
